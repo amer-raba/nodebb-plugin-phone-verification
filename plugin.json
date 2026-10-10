@@ -12,7 +12,6 @@
         { "hook": "action:user.create", "method": "userCreated" },
         { "hook": "filter:admin.header.build", "method": "addAdminNavigation" },
         { "hook": "static:app.load", "method": "init" },
-        { "hook": "filter:user.whitelistFields", "method": "whitelistFields" },
         { "hook": "filter:post.create", "method": "checkPostingPermissions" },
         { "hook": "filter:topic.create", "method": "checkPostingPermissions" },
         { "hook": "action:user.delete", "method": "userDelete" },

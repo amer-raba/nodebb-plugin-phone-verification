@@ -591,11 +591,6 @@ plugin.addAdminNavigation = async function (header) {
     return header;
 };
 
-plugin.whitelistFields = async function (data) {
-    data.whitelist.push(PHONE_FIELD_KEY, 'phoneVerified', 'phoneVerifiedAt', 'showPhone');
-    return data;
-};
-
 // ==================== MAIN INIT ====================
 
 plugin.init = async function (params) {
