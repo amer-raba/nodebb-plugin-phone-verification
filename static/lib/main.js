@@ -375,7 +375,7 @@ define('forum/phone-verification', ['hooks', 'translator', 'modals'], function (
                 });
             }
 
-            $('#sidebar-phone-link').off('click').on('click', function(e) {
+            $(document).off('click.phone', '#sidebar-phone-link').on('click.phone', '#sidebar-phone-link', function(e) {
                 e.preventDefault();
                 openPhoneManagementModal(response.phone, response.phoneVerified, userslug);
             });
