@@ -542,6 +542,21 @@ plugin.addFieldRegister = async function (data) {
     return data;
 };
 
+plugin.addPendingApprovalPhone = async function (data) {
+    if (!data || !data.req || !data.req.body) {
+        return data;
+    }
+
+    const phone = data.req.body.phoneNumber || '';
+    if (!phone) {
+        return data;
+    }
+
+    data.templateData = data.templateData || {};
+    data.templateData.phoneNumber = phone;
+    return data;
+};
+
 plugin.checkRegistration = async function (data) {
     try {
         const phoneNumber = data.req.body.phoneNumber;
