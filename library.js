@@ -542,6 +542,35 @@ plugin.addFieldRegister = async function (data) {
     return data;
 };
 
+plugin.addPendingApprovalPhone = async function (data) {
+    const phone = data.userData.phoneNumber;
+    if (!phone) {
+        return data;
+    }
+
+    const normalizedPhone = plugin.normalizePhone(phone);
+    if (!plugin.validatePhoneNumber(normalizedPhone) || !await plugin.isPhoneVerified(normalizedPhone)) {
+        throw new Error(plugin.tx('error.registration-unverified'));
+    }
+
+    // Persist the verified phone with the queue entry. Approval can happen after
+    // the temporary verification expires and has no access to the original req.
+    // action:user.create consumes this field when the administrator approves it.
+    data.data.phoneNumber = normalizedPhone;
+    return data;
+};
+
+plugin.hidePendingApprovalPhones = async function (data) {
+    // The queue API is also available to global moderators. Keep phone numbers
+    // in storage for approval, but out of the page and API response data.
+    data.users = data.users.map(user => {
+        const visibleUser = { ...user };
+        delete visibleUser.phoneNumber;
+        return visibleUser;
+    });
+    return data;
+};
+
 plugin.checkRegistration = async function (data) {
     try {
         const phoneNumber = data.req.body.phoneNumber;

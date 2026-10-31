@@ -8,6 +8,8 @@
     "languages": "./languages",
     "hooks": [
         { "hook": "filter:register.build", "method": "addFieldRegister" },
+        { "hook": "filter:user.addToApprovalQueue", "method": "addPendingApprovalPhone" },
+        { "hook": "filter:user.getRegistrationQueue", "method": "hidePendingApprovalPhones" },
         { "hook": "filter:register.check", "method": "checkRegistration" },
         { "hook": "action:user.create", "method": "userCreated" },
         { "hook": "filter:admin.header.build", "method": "addAdminNavigation" },
@@ -30,3 +32,4 @@
     "staticDirs": { "static": "static" },
     "nbbpm": { "compatibility": "^3.0.0 || ^4.0.0" }
 }
+
