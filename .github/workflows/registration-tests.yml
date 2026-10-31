@@ -1,0 +1,31 @@
+name: Registration regression tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  registration:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+        nodebb: [v3.x, v4.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/checkout@v4
+        with:
+          repository: NodeBB/NodeBB
+          ref: ${{ matrix.nodebb }}
+          path: nodebb-source
+      - run: node --check library.js
+      - run: npm run test:registration
+        env:
+          NODEBB_SOURCE: ${{ github.workspace }}/nodebb-source

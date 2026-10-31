@@ -29,6 +29,7 @@
         "mocha": "^10.2.0"
     },
     "scripts": {
-        "test": "mocha --recursive test/"
+        "test": "mocha --recursive test/",
+        "test:registration": "node --test test/registration-queue.test.cjs"
     }
 }
