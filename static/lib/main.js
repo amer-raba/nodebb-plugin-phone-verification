@@ -549,16 +549,21 @@ define('forum/phone-verification', ['hooks', 'translator', 'modals'], function (
     // ==================== View profile flow ====================
 
     function handleProfileView() {
-        if ($('#user-phone-stat-item').length > 0) return;
+        if ($('#user-phone-stat-item, #user-phone-inline').length > 0) return;
 
         const userslug = ajaxify.data.userslug;
-        
+
+        const profilePage = ajaxify.data;
+        function isCurrentProfile() {
+            return ajaxify.data === profilePage && ajaxify.data.template.name === 'account/profile';
+        }
+
         $.getJSON(config.relative_path + '/api/user/' + userslug + '/phone', function (response) {
-            if (!response.success) return;
-            
+            if (!isCurrentProfile() || !response.success) return;
+
             if (!response.phone) return;
 
-            if ($('#user-phone-stat-item').length > 0) return;
+            if ($('#user-phone-stat-item, #user-phone-inline').length > 0) return;
 
             const editUrl = config.relative_path + '/user/' + userslug + '/edit';
             const verifyBadge = response.phoneVerified
@@ -570,80 +575,19 @@ define('forum/phone-verification', ['hooks', 'translator', 'modals'], function (
                 : '';
 
             const phoneText = escapeHtml(response.phone);
-            function injectPhoneNearEmail(phoneText) {
-    const $emailLinks = $('a[href^="mailto:"]');
-    if (!$emailLinks.length) return false;
 
-    const $emailLink = $emailLinks.first();
-    if ($emailLink.data('phone-inline-appended')) return true;
-
-    const $inlinePhone = $('<span>', {
-        class: 'user-phone-inline text-muted',
-        dir: 'ltr',
-        style: 'white-space:nowrap;'
-    }).html('&nbsp;|&nbsp;' + phoneText);
-
-    $emailLink.after($inlinePhone);
-    $emailLink.data('phone-inline-appended', true);
-    return true;
-}
-
-function handleProfileView() {
-    if ($('#user-phone-stat-item').length > 0) return;
-
-    const userslug = ajaxify.data.userslug;
-
-    $.getJSON(config.relative_path + '/api/user/' + userslug + '/phone', function (response) {
-        if (!response.success) return;
-        if (!response.phone) return;
-
-        const phoneText = escapeHtml(response.phone);
-
-        if (injectPhoneNearEmail(phoneText)) return;
-
-        if ($('#user-phone-stat-item').length > 0) return;
-
-        const editUrl = config.relative_path + '/user/' + userslug + '/edit';
-        const verifyBadge = response.phoneVerified
-            ? '<i class="" title=""></i>'
-            : '<i class="fa fa-exclamation-triangle text-warning phone-goto-edit" title="[[phone-verification:status.not-verified]]" style="cursor:pointer;" data-edit-url="' + escapeHtml(editUrl) + '" aria-label="[[phone-verification:status.not-verified]]"></i>';
-
-        const privacyLabel = response.isOwner
-            ? ' <span class="text-lowercase">([[phone-verification:label.hidden]])</span>'
-            : '';
-
-        const html = `
-            <div class="stat" id="user-phone-stat-item">
-                <div class="align-items-center justify-content-center card card-header p-3 border-0 rounded-1 h-100 gap-2">
-                    <span class="stat-label text-xs fw-semibold">
-                        <i class="text-muted fa-solid fa-phone"></i>
-                        <span>[[phone-verification:label.phone-number]]</span>${privacyLabel}
-                    </span>
-                    <span class="text-sm text-center text-break w-100 px-2 ff-secondary" dir="ltr">
-                        ${phoneText} ${verifyBadge}
-                    </span>
-                </div>
-            </div>
-        `;
-
-        const $statsRow = $('.account-stats .row');
-        if ($statsRow.length) {
-            tr(html).then(function (translated) {
-                $statsRow.append(translated);
-            });
-        } else {
-            if ($('.profile-meta').length) {
-                tr(html).then(function (translated) {
-                    $('.profile-meta').append(translated);
+            const $emailLink = $('#content a[href^="mailto:"]').first();
+            if ($emailLink.length) {
+                const inlineHtml = '<span id="user-phone-inline" class="user-phone-inline text-muted" style="white-space:nowrap;">' +
+                    '&nbsp;|&nbsp;<span dir="ltr">' + phoneText + '</span> ' + verifyBadge + privacyLabel + '</span>';
+                tr(inlineHtml).then(function (translated) {
+                    if (isCurrentProfile() && !$('#user-phone-inline, #user-phone-stat-item').length) {
+                        $emailLink.after(translated);
+                    }
                 });
-            } else if ($('.fullname').length) {
-                tr(html).then(function (translated) {
-                    $('.fullname').after(translated);
-                });
+                return;
             }
-        }
-    });
-}
+
             const html = `
                 <div class="stat" id="user-phone-stat-item">
                     <div class="align-items-center justify-content-center card card-header p-3 border-0 rounded-1 h-100 gap-2">
@@ -661,16 +605,16 @@ function handleProfileView() {
             const $statsRow = $('.account-stats .row');
             if ($statsRow.length) {
                 tr(html).then(function (translated) {
-                    $statsRow.append(translated);
+                    if (isCurrentProfile() && !$('#user-phone-stat-item, #user-phone-inline').length) $statsRow.append(translated);
                 });
             } else {
                 if ($('.profile-meta').length) {
                     tr(html).then(function (translated) {
-                        $('.profile-meta').append(translated);
+                        if (isCurrentProfile() && !$('#user-phone-stat-item, #user-phone-inline').length) $('.profile-meta').append(translated);
                     });
                 } else if ($('.fullname').length) {
                     tr(html).then(function (translated) {
-                        $('.fullname').after(translated);
+                        if (isCurrentProfile() && !$('#user-phone-stat-item, #user-phone-inline').length) $('.fullname').after(translated);
                     });
                 }
             }
